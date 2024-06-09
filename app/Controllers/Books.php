@@ -104,4 +104,71 @@ class Books extends BaseController
 
         return redirect()->to('/books');
     }
+    public function edit($slug)
+    {
+        //session();
+
+        $data = [
+            'title' => 'Form Edit Data Buku',
+            'validation' => session()->getFlashdata('validation') ?? \Config\Services::validation(),
+            'buku' => $this->bukuModel->getBuku($slug)
+        ];
+
+        return view('books/edit', $data);
+    }
+
+    public function update($id)
+    {
+        //fungsi cek judul buku yang ada
+        $bukuLama = $this->bukuModel->getBuku($this->request->getVar('slug'));
+        if ($bukuLama['judul'] == $this->request->getVar('judul')) {
+            $rule_judul = 'required';
+        } else {
+            $rule_judul = 'required|is_unique[books.judul]';
+        }
+        //validasi Input
+        if (
+            !$this->validate([
+                'judul' => [
+                    'rules' => 'required|is_unique[books.judul]',
+                    'errors' => [
+                        'required' => '{field} buku harus diisi',
+                        'is_unique' => '{field} buku sudah dimasukkan'
+                    ]
+                ],
+                'penulis' => [
+                    'rules' => 'required|is_unique[books.penulis]',
+                    'errors' => [
+                        'required' => '{field} buku harus diisi',
+                        'is_unique' => '{field} sudah dimasukkan'
+                    ]
+                ],
+                'penerbit' => [
+                    'rules' => 'required|is_unique[books.penerbit]',
+                    'errors' => [
+                        'required' => '{field} buku harus diisi',
+                        'is_unique' => '{field} sudah dimasukkan'
+                    ]
+                ]
+            ])
+        ) {
+            session()->setFlashdata('validation', \Config\Services::validation());
+            return redirect()->to('/books/edit/' . $this->request->getVar('slug'))->withInput();
+        }
+
+        $slug = url_title($this->request->getVar('judul'), '-', true);
+        $this->bukuModel->save([
+            'id' => $id,
+            'judul' => $this->request->getVar('judul'),
+            'slug' => $slug,
+            'penulis' => $this->request->getVar('penulis'),
+            'penerbit' => $this->request->getVar('penerbit'),
+            'sampul' => $this->request->getVar('sampul')
+
+        ]);
+
+        session()->setFlashdata('pesan', 'Data berhasil diubah');
+
+        return redirect()->to('/books');
+    }
 }
