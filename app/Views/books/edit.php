@@ -43,10 +43,13 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="sampul" class="col-sm-2 col-form-label">Sampul</label>
-                    <div class="col-sm-10">
-                        <input type="sampul" class="form-control" id="sampul" name="sampul" autofocus="autofocus"
-                            value="<?= (old('sampul')) ? old('sampul') : $buku['sampul'] ?>">
+                <label for="sampul" class="col-sm-2 col-form-label">Sampul</label>
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control <?= ($validation->hasError('sampul')) ? 'is-invalid' : ''; ?>"
+                        id="sampul" name="sampul" onchange="previewImg()">
+                        <div class="invalid-feedback">
+                            <?= $validation->getError('sampul'); ?>
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Ubah Data</button>
